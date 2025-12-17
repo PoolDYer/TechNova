@@ -1,10 +1,11 @@
-import React from 'react';
-import { ShoppingCart, Menu, Search, User, MapPin } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShoppingCart, Menu, Search, User, MapPin, X } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { ProductCategory } from '../types';
 
 const Navbar: React.FC = () => {
   const { cart, toggleCart, setCategoryFilter, toggleOrders, searchQuery, setSearchQuery, user, toggleAuth, logout } = useStore();
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -58,6 +59,7 @@ const Navbar: React.FC = () => {
               onClick={() => {
                 handleFilterClick('ALL');
                 setSearchQuery(''); // Clear search on logo click
+                setMobileSearchOpen(false);
               }}
             >
               <span className="text-2xl font-black text-slate-900 tracking-tight">Tech<span className="text-white">Nova</span></span>
@@ -83,6 +85,14 @@ const Navbar: React.FC = () => {
 
           {/* User Actions */}
           <div className="flex items-center gap-2 md:gap-6">
+            {/* Mobile Search Button */}
+            <button
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="md:hidden p-2 text-slate-900 hover:bg-white/20 transition-colors rounded-full"
+            >
+              <Search className="h-6 w-6" />
+            </button>
+
             <div
               className="hidden md:flex flex-col items-center text-slate-900 cursor-pointer opacity-80 hover:opacity-100 relative group"
             >
@@ -141,19 +151,41 @@ const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
-        <div className="md:hidden pb-4">
-          <div className="relative w-full">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              placeholder="Buscar..."
-              className="w-full h-10 pl-4 pr-10 rounded-full border-none text-sm"
-            />
-            <Search className="absolute right-3 top-2.5 h-5 w-5 text-slate-400" />
+        {/* Mobile Search Bar - Full Width Modal */}
+        {mobileSearchOpen && (
+          <div className="md:hidden bg-white border-b-4 border-slate-900 p-4 pb-6">
+            <div className="flex gap-2 items-center">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    handleSearchChange(e);
+                  }}
+                  placeholder="Buscar laptops, componentes..."
+                  autoFocus
+                  className="w-full h-11 pl-4 pr-4 rounded-full border-2 border-slate-300 text-sm focus:border-green-600 focus:outline-none"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  setMobileSearchOpen(false);
+                }}
+                className="p-2 text-slate-600 hover:text-slate-900 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            {searchQuery && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="text-xs text-slate-500">Búsqueda activa:</span>
+                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">
+                  {searchQuery}
+                </span>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Categories Bar */}
