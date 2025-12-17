@@ -54,7 +54,7 @@ const CheckoutModal: React.FC = () => {
     setDniError('');
 
     try {
-      const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
+      const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || 'https://technova-backend-pv6r.onrender.com/api';
       const response = await fetch(`${apiBaseUrl}/dni/${dni}`);
       const result = await response.json();
 

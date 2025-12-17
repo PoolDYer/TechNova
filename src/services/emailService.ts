@@ -1,6 +1,6 @@
 import { Order } from '../types';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://technova-backend-pv6r.onrender.com/api';
 
 export const sendOrderConfirmationEmail = async (order: Order): Promise<boolean> => {
   try {
