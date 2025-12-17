@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@openrouter/sdk": "^0.2.9",
-    "@supabase/supabase-js": "^2.87.1",
+    "@supabase/supabase-js": "^2.88.0",
     "axios": "^1.6.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
