@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -67,6 +68,11 @@ module.exports = (env, argv) => {
         template: './public/index.html',
         favicon: false,
         inject: 'body',
+      }),
+      new CopyPlugin({
+        patterns: [
+          { from: 'public/images', to: 'images' },
+        ],
       }),
       new Dotenv({
         path: './.env',
