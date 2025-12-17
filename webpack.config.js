@@ -73,6 +73,7 @@ module.exports = (env, argv) => {
         safe: false,
         systemvars: true,
         silent: true,
+        expand: true,
       }),
     ],
     devServer: {

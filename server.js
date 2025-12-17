@@ -7,8 +7,17 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// CORS Configuration - Allow all origins in production
+const corsOptions = {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Configurar transporter de nodemailer

@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: technova-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: GMAIL_USER
+        scope: run
+      - key: GMAIL_APP_PASSWORD
+        scope: run
+      - key: SUPABASE_URL
+        scope: run
+      - key: SUPABASE_ANON_KEY
+        scope: run
+      - key: API_BASE_URL
+        scope: run
+      - key: API_TOKEN
+        scope: run
+      - key: OPENROUTER_API_KEY
+        scope: run

@@ -54,7 +54,8 @@ const CheckoutModal: React.FC = () => {
     setDniError('');
 
     try {
-      const response = await fetch(`http://localhost:3001/api/dni/${dni}`);
+      const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
+      const response = await fetch(`${apiBaseUrl}/dni/${dni}`);
       const result = await response.json();
 
       if (result.success && result.data) {
