@@ -176,6 +176,15 @@ app.post('/api/send-order-confirmation', async (req, res) => {
                             </div>
                         </td>
                     </tr>
+
+                    <!-- CTA Button -->
+                    <tr>
+                        <td style="padding: 30px; text-align: center;">
+                            <a href="https://technova-electronica.netlify.app/" style="display: inline-block; background: linear-gradient(135deg, #A3CD39 0%, #8bb926 100%); color: #1e293b; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(163, 205, 57, 0.3);">
+                                Ir a TechNova
+                            </a>
+                        </td>
+                    </tr>
                     
                     <!-- Footer -->
                     <tr>
