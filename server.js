@@ -3,6 +3,7 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const axios = require('axios');
+const { Resend } = require('resend');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +29,9 @@ const transporter = nodemailer.createTransport({
         pass: process.env.GMAIL_APP_PASSWORD
     }
 });
+
+// Inicializar Resend con clave de prueba (gratis sin RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY || 'test_key');
 
 // Endpoint para enviar correo de confirmación de compra
 app.post('/api/send-order-confirmation', async (req, res) => {
@@ -303,6 +307,147 @@ app.get('/api/dni/:dni', async (req, res) => {
         res.status(500).json({ 
             success: false, 
             error: 'No se pudo consultar el DNI en este momento' 
+        });
+    }
+});
+
+// Endpoint para enviar correo de confirmación de email (Supabase Auth)
+app.post('/api/send-confirmation-email', async (req, res) => {
+    try {
+        const { email, fullName, confirmationUrl } = req.body;
+
+        if (!email || !confirmationUrl) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email y URL de confirmación requeridos' 
+            });
+        }
+
+        const confirmationHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Arial', sans-serif; background-color: #f3f4f6;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 40px 0; text-align: center;">
+                <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="color: #A3CD39; margin: 0; font-size: 32px; font-weight: bold;">
+                                TECHNOVA
+                            </h1>
+                            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 14px;">
+                                Verifica tu correo electrónico
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 40px 30px; text-align: center;">
+                            <div style="width: 60px; height: 60px; margin: 0 auto 20px; background-color: #3b82f6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                                <span style="color: white; font-size: 30px;">✉️</span>
+                            </div>
+                            <h2 style="color: #1e293b; margin: 0 0 10px 0; font-size: 24px;">
+                                ¡Bienvenido a TechNova, ${fullName || 'usuario'}!
+                            </h2>
+                            <p style="color: #64748b; margin: 0 0 30px 0; font-size: 16px; line-height: 1.5;">
+                                Gracias por registrarte en nuestra plataforma. Para completar tu registro y acceder a todas las funciones, por favor verifica tu correo electrónico.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- CTA Button -->
+                    <tr>
+                        <td style="padding: 0 30px 30px 30px; text-align: center;">
+                            <a href="${confirmationUrl}" style="display: inline-block; background: linear-gradient(135deg, #A3CD39 0%, #8bb926 100%); color: #1e293b; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(163, 205, 57, 0.3);">
+                                Verificar Correo
+                            </a>
+                            <p style="margin: 20px 0 0 0; color: #94a3b8; font-size: 12px;">
+                                Este enlace expira en 24 horas
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Fallback Info -->
+                    <tr>
+                        <td style="padding: 0 30px 30px 30px; background-color: #f8fafc; border-radius: 8px; margin: 0 30px;">
+                            <p style="margin: 15px 0; color: #64748b; font-size: 13px;">
+                                Si el botón no funciona, copia y pega este enlace en tu navegador:
+                            </p>
+                            <p style="margin: 10px 0; word-break: break-all; color: #3b82f6; font-size: 12px; font-family: 'Courier New', monospace;">
+                                ${confirmationUrl}
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Security Note -->
+                    <tr>
+                        <td style="padding: 20px 30px; background-color: #fef3c7; border-left: 4px solid #f59e0b;">
+                            <p style="margin: 0; color: #92400e; font-size: 12px;">
+                                <strong>⚠️ Seguridad:</strong> Si no creaste esta cuenta, ignora este correo. No compartas este enlace con nadie.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #1e293b; padding: 30px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; color: #94a3b8; font-size: 12px;">
+                                ¿Necesitas ayuda? Contáctanos en
+                            </p>
+                            <p style="margin: 0; color: #A3CD39; font-size: 14px; font-weight: bold;">
+                                soporte@technova.com
+                            </p>
+                            <p style="margin: 20px 0 0 0; color: #64748b; font-size: 11px;">
+                                © ${new Date().getFullYear()} TechNova Solutions. Todos los derechos reservados.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+        `;
+
+        try {
+            // Intentar enviar con Resend primero
+            await resend.emails.send({
+                from: 'TechNova <noreply@resend.dev>',
+                to: email,
+                subject: '✅ Verifica tu correo electrónico - TechNova',
+                html: confirmationHTML
+            });
+            console.log('✅ Correo de confirmación enviado con Resend:', email);
+        } catch (resendError) {
+            console.log('⚠️ Resend no disponible, usando Gmail...');
+            // Fallback a Gmail si Resend falla
+            await transporter.sendMail({
+                from: `TechNova <${process.env.GMAIL_USER}>`,
+                to: email,
+                subject: '✅ Verifica tu correo electrónico - TechNova',
+                html: confirmationHTML
+            });
+            console.log('✅ Correo de confirmación enviado con Gmail:', email);
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'Correo de confirmación enviado exitosamente'
+        });
+
+    } catch (error) {
+        console.error('❌ Error al enviar correo de confirmación:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
         });
     }
 });
